@@ -15,6 +15,10 @@
 
 start:
     sbi DDRB, PB5       ; set bit 5 in PORTB as output
+	ldi r16, HIGH(RAMEND)
+	out sph, r16
+	ldi r16, LOW(RAMEND)
+	out spl, r16
 
 config_timer0:
 	ldi r16, (1 << CS02) | (1 << CS00) ; set timer0 prescaler to clk/1024. will run at ~ 16 Khz
@@ -30,17 +34,22 @@ lcd_init:
 	sbi DDRD, PD4
 	sbi DDRD, PD3
 	sbi DDRD, PD2
-	rcall delay_1ms
 
 loop:
 	nop
 	rjmp loop
 
 delay_1ms:
-	ldi r16, 0x00
+	clr r16
 	out TCNT0, r16
 delay_1ms_wait:
 	in r16, TCNT0
 	cpi r16, 0x11
 	brlo delay_1ms_wait
+	ret
+
+delay_n_ms: ; function that delays n number of ms. argument in r17
+	rcall delay_1ms
+	dec r17
+	brne delay_n_ms
 	ret
