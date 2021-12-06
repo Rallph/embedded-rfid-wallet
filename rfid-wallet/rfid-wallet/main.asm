@@ -5,17 +5,19 @@
 .def delay_e = r16      ; high outer byte of delay counter
 
 
-.equ LCD_RS = PINB4
-.equ LCD_E = PINB3
-.equ LCD_D4 = PIND5
-.equ LCD_D5 = PIND4
-.equ LCD_D6 = PIND3
-.equ LCD_D7 = PIND2
+.equ LCD_RS = PORTB0
+.equ LCD_E = PORTB1
+.equ LCD_RW = PORTB2
+
+.equ LCD_D4 = PORTD4
+.equ LCD_D5 = PORTD5
+.equ LCD_D6 = PORTD6
+.equ LCD_D7 = PORTD7
 
 
 start:
     sbi DDRB, PB5       ; set bit 5 in PORTB as output
-	ldi r16, HIGH(RAMEND)
+	ldi r16, HIGH(RAMEND) ; init stack
 	out sph, r16
 	ldi r16, LOW(RAMEND)
 	out spl, r16
@@ -26,43 +28,33 @@ config_timer0:
 
 lcd_init:
 
-	; set LCD pins
-	sbi DDRB, PB4
-	sbi DDRB, PB3
 
-	sbi DDRD, PD5
-	sbi DDRD, PD4
-	sbi DDRD, PD3
-	sbi DDRD, PD2
+; writes 4 bits to LCD ports and drives LCD enable high to write out. 
+; takes r17 register as argument, with bits in 4-7 (upper nibble)
+lcd_write_4bit:
+	; data pin 7
+	cbi PORTD, LCD_D7	; clear bit. if the bit in the argument register is set, we want to write it
+	sbrc r17, 7			; so dont skip sbi instruction
+	sbi PORTD, LCD_D7
+	; data pin 6
+	cbi PORTD, LCD_D6
+	sbrc r17, 6
+	sbi PORTD, LCD_D6
+	; data pin 5
+	cbi PORTD, LCD_D5
+	sbrc r17, 5
+	sbi PORTD, LCD_D5
+	; data pin 4
+	cbi PORTD, LCD_D4
+	sbrc r17, 4
+	sbi PORTD, LCD_D4
 	
-	; wait 50 ms
-	ldi r17, 0x32
-	rcall delay_n_ms
-	cbi PINB, LCD_RS
-	cbi PINB, LCD_E
-	cbi PIND, LCD_D7
-	cbi PIND, LCD_D6
-	sbi PIND, LCD_D5
-	sbi PIND, LCD_D4
-	ldi r17, 0x10
-	rcall delay_n_ms ; wait 16 ms just in case
-
-	cbi PIND, LCD_D4
-	sbi PIND, LCD_D7
-	sbi PIND, LCD_D6
-	clr r16
-	out PIND, r16
-	sbi PIND, LCD_D7
-	cbi PIND, LCD_D7
-	sbi PIND, LCD_D4
-	cbi PIND, LCD_D4
-	sbi PIND, LCD_D6
-	sbi PIND, LCD_D5
-	sbi PIND, LCD_D4
-
-	
-	 
-
+	; drive enable high then low to write out data to LCD
+	sbi PORTB, LCD_E
+	call delay_1ms
+	cbi PORTB, LCD_E
+	call delay_1ms
+	ret
 
 
 
