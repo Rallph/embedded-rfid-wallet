@@ -4,22 +4,43 @@
 .def delay_h = r27      ; high inner byte of delay counter
 .def delay_e = r16      ; high outer byte of delay counter
 
+
+.equ LCD_RS = PINB4
+.equ LCD_E = PINB3
+.equ LCD_D4 = PIND5
+.equ LCD_D5 = PIND4
+.equ LCD_D6 = PIND3
+.equ LCD_D7 = PIND2
+
+
 start:
     sbi DDRB, PB5       ; set bit 5 in PORTB as output
 
+config_timer0:
+	ldi r16, (1 << CS02) | (1 << CS00) ; set timer0 prescaler to clk/1024. will run at ~ 16 Khz
+	out TCCR0B, r16
+
+lcd_init:
+
+	; LCD pins
+	sbi DDRB, PB4
+	sbi DDRB, PB3
+
+	sbi DDRD, PD5
+	sbi DDRD, PD4
+	sbi DDRD, PD3
+	sbi DDRD, PD2
+	rcall delay_1ms
+
 loop:
-    sbi PINB, PB5       ; writing PB5 (0x20) into PINB register flips the PB5 bit in PORTB
+	nop
+	rjmp loop
 
-    ; delay for 8 000 000 clock cycles (1 second)
-    ldi delay_l, 0xFF   ; 1 clock cycle
-    ldi delay_h, 0x69   ; 1 clock cycle
-    ldi delay_e, 0x18   ; 1 clock cycle
-
-    ; loop 0x1869FF (1 599 999) times
-delay_loop:
-    sbiw delay_l, 1     ; 2 clock cycles * 1 599 999 (subtract 1 from delay_l and delay_h register pair)
-    sbci delay_e, 0     ; 1 clock cycle * 1 599 999
-
-    brne delay_loop     ; 2 clock cycles * 1 599 598 + 1 clock cycle (when counter reaches 0)
-
-    jmp loop            ; 3 clock cycles
+delay_1ms:
+	ldi r16, 0x00
+	out TCNT0, r16
+delay_1ms_wait:
+	in r16, TCNT0
+	cpi r16, 0x11
+	brlo delay_1ms_wait
+	ret
