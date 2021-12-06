@@ -5,14 +5,14 @@
 .def delay_e = r16      ; high outer byte of delay counter
 
 
-.equ LCD_RS = PORTB0
-.equ LCD_E = PORTB1
-.equ LCD_RW = PORTB2
+.equ LCD_RS = PORTB0	; arduino pin 8
+.equ LCD_E = PORTB1		; arduino pin 9
+.equ LCD_RW = PORTB2	; arduino pin 10
 
-.equ LCD_D4 = PORTD4
-.equ LCD_D5 = PORTD5
-.equ LCD_D6 = PORTD6
-.equ LCD_D7 = PORTD7
+.equ LCD_D4 = PORTD4	; arduino pin 4
+.equ LCD_D5 = PORTD5	; arduino pin 5
+.equ LCD_D6 = PORTD6	; arduino pin 6
+.equ LCD_D7 = PORTD7	; arduino pin 7
 
 
 start:
