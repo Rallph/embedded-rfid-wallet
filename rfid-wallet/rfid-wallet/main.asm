@@ -26,7 +26,7 @@ config_timer0:
 
 lcd_init:
 
-	; LCD pins
+	; set LCD pins
 	sbi DDRB, PB4
 	sbi DDRB, PB3
 
@@ -34,6 +34,37 @@ lcd_init:
 	sbi DDRD, PD4
 	sbi DDRD, PD3
 	sbi DDRD, PD2
+	
+	; wait 50 ms
+	ldi r17, 0x32
+	rcall delay_n_ms
+	cbi PINB, LCD_RS
+	cbi PINB, LCD_E
+	cbi PIND, LCD_D7
+	cbi PIND, LCD_D6
+	sbi PIND, LCD_D5
+	sbi PIND, LCD_D4
+	ldi r17, 0x10
+	rcall delay_n_ms ; wait 16 ms just in case
+
+	cbi PIND, LCD_D4
+	sbi PIND, LCD_D7
+	sbi PIND, LCD_D6
+	clr r16
+	out PIND, r16
+	sbi PIND, LCD_D7
+	cbi PIND, LCD_D7
+	sbi PIND, LCD_D4
+	cbi PIND, LCD_D4
+	sbi PIND, LCD_D6
+	sbi PIND, LCD_D5
+	sbi PIND, LCD_D4
+
+	
+	 
+
+
+
 
 loop:
 	nop
