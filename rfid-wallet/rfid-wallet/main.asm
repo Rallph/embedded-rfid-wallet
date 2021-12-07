@@ -3,7 +3,6 @@
 
 .equ LCD_RS = PORTB0	; arduino pin 8
 .equ LCD_E = PORTB1		; arduino pin 9
-.equ LCD_RW = PORTB2	; arduino pin 10
 
 .equ LCD_D4 = PORTD4	; arduino pin 4
 .equ LCD_D5 = PORTD5	; arduino pin 5
@@ -40,7 +39,6 @@ lcd_init:
 	rcall delay_n_ms ; wait 100 ms for power up
 
 	cbi PORTB, LCD_RS
-	cbi PORTB, LCD_RW
 	cbi PORTB, LCD_E
 
 	ldi r17, LCD_INIT_SET
@@ -96,7 +94,6 @@ lcd_init:
 
 ; write command to lcd. pass 1 byte command in r17. lcd commands defined above
 lcd_write_command:
-	cbi PORTB, LCD_RW
 	cbi PORTB, LCD_RS
 	cbi PORTB, LCD_E
 	rcall lcd_write_4bit
