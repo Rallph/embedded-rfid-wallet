@@ -32,21 +32,21 @@ config_timer0:
 ; takes r17 register as argument, with bits in 4-7 (upper nibble)
 lcd_write_4bit:
 	; data pin 7
-	cbi PORTD, LCD_D7	; clear bit. if the bit in the argument register is set, we want to write it
-	sbrc r17, 7			; so dont skip sbi instruction
-	sbi PORTD, LCD_D7
+	sbi PORTD, LCD_D7	; clear bit. if the bit in the argument register is set, we want to write it
+	sbrs r17, 7			; so dont skip sbi instruction
+	cbi PORTD, LCD_D7
 	; data pin 6
-	cbi PORTD, LCD_D6
-	sbrc r17, 6
 	sbi PORTD, LCD_D6
+	sbrs r17, 6
+	cbi PORTD, LCD_D6
 	; data pin 5
-	cbi PORTD, LCD_D5
-	sbrc r17, 5
 	sbi PORTD, LCD_D5
+	sbrs r17, 5
+	cbi PORTD, LCD_D5
 	; data pin 4
-	cbi PORTD, LCD_D4
-	sbrc r17, 4
 	sbi PORTD, LCD_D4
+	sbrs r17, 4
+	cbi PORTD, LCD_D4
 	
 	; drive enable high then low to write out data to LCD
 	sbi PORTB, LCD_E
