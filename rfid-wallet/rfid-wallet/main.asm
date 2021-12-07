@@ -132,38 +132,6 @@ lcd_write_4bit:
 	call delay_1ms
 	ret
 
-; checks if LCD is busy by reading input from D7 pin
-; blocks while LCD is busy
-lcd_wait_busy:
-	cbi PORTD, LCD_D7 ; clear pin 7 if it was set previously
-	cbi DDRD, LCD_D7 ; change lcd pin 7 to input so we can read from it
-	cbi PORTB, LCD_RS ; RS low for command
-	sbi PORTB, LCD_RW ; RW high for read
-lcd_check_busy:
-	; drive enable to read upper nibble
-	sbi PORTB, LCD_E
-	rcall delay_1ms
-	in r15, PIND ; can read after enable goes low to high
-	cbi PORTB, LCD_E
-	rcall delay_1ms
-
-	; read lower nibble (not used)
-	sbi PORTB, LCD_E
-	rcall delay_1ms
-	cbi PORTB, LCD_E
-	rcall delay_1ms
-
-	sbrs r15, 7
-	rjmp lcd_wait_finish
-	rjmp lcd_check_busy
-
-lcd_wait_finish:
-	cbi PORTB, LCD_RW ; RW back to low for write
-	sbi DDRD, LCD_D7 ; D7 back to output
-	clr r15
-	ret
-
-
 loop:
 	rcall delay_1ms
 	nop
