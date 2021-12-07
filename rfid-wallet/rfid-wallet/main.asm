@@ -56,39 +56,36 @@ lcd_init:
 	rcall lcd_write_4bit
 	rcall delay_1ms
 
-	; can check lcd busy flag now
-	rcall lcd_wait_busy
-
 	; set to 4 bit mode
 	ldi r17, LCD_FUNCTION_SET
 	rcall lcd_write_command
-	rcall lcd_wait_busy
+	rcall delay_1ms
 
 	; datasheet says to do this again
 	ldi r17, LCD_FUNCTION_SET
 	rcall lcd_write_command
-	rcall lcd_wait_busy
+	rcall delay_1ms
 
 	; set 2 lines, 5 x 7 font
 	ldi r17, LCD_SET_LINES_FONT
 	rcall lcd_write_command
-	;rcall lcd_wait_busy
 	rcall delay_1ms
 
 	; display off
 	ldi r17, LCD_DISPLAY_OFF
 	rcall lcd_write_command
-	rcall lcd_wait_busy
+	rcall delay_1ms
 
 	; clear display
 	ldi r17, LCD_DISPLAY_CLEAR
 	rcall lcd_write_command
-	rcall lcd_wait_busy
+	ldi r17, 2
+	rcall delay_n_ms
 
 	; set entry mode
 	ldi r17, LCD_SET_ENTRY_MODE
 	rcall lcd_write_command
-	rcall lcd_wait_busy
+	rcall delay_1ms
 
 
 
