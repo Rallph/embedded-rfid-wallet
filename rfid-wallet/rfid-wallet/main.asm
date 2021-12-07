@@ -58,7 +58,8 @@ lcd_write_4bit:
 ; checks if LCD is busy by reading input from D7 pin
 ; blocks while LCD is busy
 lcd_wait_busy:
-	cbi DDRB, LCD_D7 ; change lcd pin 7 to input so we can read from it
+	cbi PORTD, LCD_D7 ; clear pin 7 if it was set previously
+	cbi DDRD, LCD_D7 ; change lcd pin 7 to input so we can read from it
 	cbi PORTB, LCD_RS ; RS low for command
 	sbi PORTB, LCD_RW ; RW high for read
 lcd_check_busy:
