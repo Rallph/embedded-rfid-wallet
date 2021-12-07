@@ -16,7 +16,9 @@
 
 
 start:
-    sbi DDRB, PB5       ; set bit 5 in PORTB as output
+    ldi r16, 0xff
+	out DDRB, r16 ; set all PORTB to output
+	out DDRD, r16 ; set all PORTD to output
 	ldi r16, HIGH(RAMEND) ; init stack
 	out sph, r16
 	ldi r16, LOW(RAMEND)
