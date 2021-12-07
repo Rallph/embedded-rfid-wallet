@@ -13,7 +13,7 @@
 .equ LCD_INIT_SET = 0b00110000
 .equ LCD_FUNCTION_SET = 0b00100000 ; set to 4 bit mode
 .equ LCD_SET_LINES_FONT = 0b00101000 ; set 2 lines and 5x7 font
-.equ LCD_DISPLAY_OFF = 0b00001111 ; set display, cursor, and blink on
+.equ LCD_DISPLAY_ON = 0b00001111 ; set display, cursor, and blink on
 .equ LCD_DISPLAY_CLEAR = 0b00000001
 .equ LCD_SET_ENTRY_MODE = 0b00000011 ; set increment mode and shift (move left to right)
 
@@ -70,7 +70,7 @@ lcd_init:
 	rcall delay_1ms
 
 	; display off
-	ldi r17, LCD_DISPLAY_OFF
+	ldi r17, LCD_DISPLAY_ON
 	rcall lcd_write_command
 	rcall delay_1ms
 
@@ -84,7 +84,6 @@ lcd_init:
 	ldi r17, LCD_SET_ENTRY_MODE
 	rcall lcd_write_command
 	rcall delay_1ms
-
 
 
 	sbi PORTB, PB5
