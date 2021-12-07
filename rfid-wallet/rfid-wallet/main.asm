@@ -14,6 +14,14 @@
 .equ LCD_D6 = PORTD6	; arduino pin 6
 .equ LCD_D7 = PORTD7	; arduino pin 7
 
+; LCD commands
+.equ LCD_INIT_SET = 0b00110000
+.equ LCD_FUNCTION_SET = 0b00100000 ; set to 4 bit mode
+.equ LCD_SET_LINES_FONT = 0b00101000 ; set 2 lines and 5x7 font
+.equ LCD_DISPLAY_OFF = 0b00001111 ; set display, cursor, and blink on
+.equ LCD_DISPLAY_CLEAR = 0b00000001
+.equ LCD_SET_ENTRY_MODE = 0b00000011 ; set increment mode and shift (move left to right)
+
 
 start:
     ldi r16, 0xff
@@ -28,6 +36,16 @@ config_timer0:
 	ldi r16, (1 << CS02) | (1 << CS00) ; set timer0 prescaler to clk/1024. will run at ~ 16 Khz
 	out TCCR0B, r16
 	rjmp loop
+
+; write command to lcd. pass 1 byte command in r17. lcd commands defined above
+lcd_write_command:
+	cbi PORTB, LCD_RW
+	cbi PORTB, LCD_RS
+	cbi PORTB, LCD_E
+	rcall lcd_write_4bit
+	swap r17
+	rcall lcd_write_4bit
+	ret
 
 
 ; writes 4 bits to LCD ports and drives LCD enable high to write out. 
