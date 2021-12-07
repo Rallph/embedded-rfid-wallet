@@ -27,10 +27,13 @@ start:
 	ldi r16, LOW(RAMEND)
 	out spl, r16
 
-config_timer0:
+	; config timer0
 	ldi r16, (1 << CS02) | (1 << CS00) ; set timer0 prescaler to clk/1024. will run at ~ 16 Khz
 	out TCCR0B, r16
+
+	; init lcd
 	rcall lcd_init
+
 	rjmp loop
 
 ; run init sequence to start LCD in 4 bit mode
