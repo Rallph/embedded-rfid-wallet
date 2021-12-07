@@ -1,9 +1,5 @@
 .include "m328pdef.inc"
 
-.def delay_l = r26      ; low byte of delay counter
-.def delay_h = r27      ; high inner byte of delay counter
-.def delay_e = r16      ; high outer byte of delay counter
-
 
 .equ LCD_RS = PORTB0	; arduino pin 8
 .equ LCD_E = PORTB1		; arduino pin 9
@@ -35,7 +31,71 @@ start:
 config_timer0:
 	ldi r16, (1 << CS02) | (1 << CS00) ; set timer0 prescaler to clk/1024. will run at ~ 16 Khz
 	out TCCR0B, r16
+	rcall lcd_init
 	rjmp loop
+
+; run init sequence to start LCD in 4 bit mode
+lcd_init:
+	ldi r17, 100
+	rcall delay_n_ms ; wait 100 ms for power up
+
+	cbi PORTB, LCD_RS
+	cbi PORTB, LCD_RW
+	cbi PORTB, LCD_E
+
+	ldi r17, LCD_INIT_SET
+	rcall lcd_write_4bit ; write init sequence
+	ldi r17, 5
+	rcall delay_n_ms ; wait > 4.1 ms
+	
+	ldi r17, LCD_INIT_SET
+	rcall lcd_write_4bit
+	rcall delay_1ms ; wait > 100 us
+
+	ldi r17, LCD_INIT_SET
+	rcall lcd_write_4bit
+	rcall delay_1ms
+
+	; can check lcd busy flag now
+	rcall lcd_wait_busy
+
+	; set to 4 bit mode
+	ldi r17, LCD_FUNCTION_SET
+	rcall lcd_write_command
+	rcall lcd_wait_busy
+
+	; datasheet says to do this again
+	ldi r17, LCD_FUNCTION_SET
+	rcall lcd_write_command
+	rcall lcd_wait_busy
+
+	; set 2 lines, 5 x 7 font
+	ldi r17, LCD_SET_LINES_FONT
+	rcall lcd_write_command
+	;rcall lcd_wait_busy
+	rcall delay_1ms
+
+	; display off
+	ldi r17, LCD_DISPLAY_OFF
+	rcall lcd_write_command
+	rcall lcd_wait_busy
+
+	; clear display
+	ldi r17, LCD_DISPLAY_CLEAR
+	rcall lcd_write_command
+	rcall lcd_wait_busy
+
+	; set entry mode
+	ldi r17, LCD_SET_ENTRY_MODE
+	rcall lcd_write_command
+	rcall lcd_wait_busy
+
+
+
+	sbi PORTB, PB5
+	ret
+
+
 
 ; write command to lcd. pass 1 byte command in r17. lcd commands defined above
 lcd_write_command:
