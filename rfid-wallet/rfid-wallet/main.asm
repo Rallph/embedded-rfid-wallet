@@ -90,6 +90,16 @@ lcd_init:
 	ret
 
 
+; write character to lcd. pass 1 byte in r17. refer to datasheet for possible characters. seems to be ascii
+lcd_write_char:
+	sbi PORTB, LCD_RS ; set RS to high to select data
+	cbi PORTB, LCD_E
+	rcall lcd_write_4bit
+	swap r17
+	rcall lcd_write_4bit
+	rcall delay_1ms
+	ret
+
 
 ; write command to lcd. pass 1 byte command in r17. lcd commands defined above
 lcd_write_command:
