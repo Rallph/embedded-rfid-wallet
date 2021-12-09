@@ -15,6 +15,8 @@ String card_data[10] = {""};
 
 int current_card_index = 0;
 
+String look_to_write = "";
+
 void dump_byte_array(byte *buffer, byte bufferSize) {
     for (byte i = 0; i < bufferSize; i++) {
         Serial.print(buffer[i] < 0x10 ? " 0" : " ");
@@ -125,7 +127,7 @@ void setup() {
 
 void loop() {
   int button = digitalRead(A5);
-  if (button == HIGH) {
+  if (button == HIGH && look_to_write == "") {
     current_card_index++;
     if (current_card_index >= 10) {
       current_card_index = 0;
@@ -148,7 +150,7 @@ void loop() {
   }
 
   int write_button = digitalRead(A4);
-  if (write_button == HIGH) {
+  if (write_button == HIGH && look_to_write == "") {
     Serial.println("write hit");
     if (card_uid[current_card_index] != "") {
       lcd.clear();
@@ -157,70 +159,35 @@ void loop() {
       lcd.setCursor(0, 1);
       lcd.print("to card ");
       lcd.print(current_card_index + 1);
-      bool card_found = false;
-      while (!card_found) {
-        if ( ! mfrc522.PICC_IsNewCardPresent())
-          continue;
-
-        if ( ! mfrc522.PICC_ReadCardSerial())
-          continue;
-
-        MFRC522::StatusCode status_k = (MFRC522::StatusCode) mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 7, &key, &(mfrc522.uid));
-        if (status_k != MFRC522::STATUS_OK) {
-          continue;
-        }
-        
-        Serial.println("card found 1");
-        String current_card_uid = card_buffer_to_string(mfrc522.uid.uidByte, mfrc522.uid.size);
-        if (current_card_uid == card_uid[current_card_index]) {
-          Serial.println("card found 2");
-          card_found = true;
-          bool status = write_to_card();
-          if (!status) {
-            lcd.clear();
-            lcd.setCursor(0, 0);
-            lcd.print("Write failed");
-            break;
-          }
-          byte card_data_buffer[18];
-          byte card_data_size = 18;
-          read_from_card(card_data_buffer, card_data_size);
-          String updated_card_data = card_buffer_to_string(card_data_buffer, card_data_size);
-          Serial.print("updated data: ");
-          Serial.println(updated_card_data);
-          update_card_data(current_card_uid, updated_card_data);
-
-          lcd.clear();
-          lcd.setCursor(0, 0);
-          lcd.print("Write succeeded");
-        }
-      }
+      look_to_write = card_uid[current_card_index];
     }
     delay(1500);
     lcd.clear();
   }
-  
-  if (is_card_data_updated()) {
-    Serial.println("hit");
-    lcd.clear(); 
-  }
-  if (card_uid[current_card_index] == "") {
-    lcd.setCursor(0, 0);
-    lcd.print("Card ");
-    lcd.print(current_card_index + 1);
-    lcd.print(" empty.");
-  }
-  else {
-    lcd.setCursor(0, 0);
-    lcd.print(card_uid[current_card_index]);
 
-    lcd.setCursor(0, 1);
-    lcd.print(card_data[current_card_index].substring(0, 20)); 
+  if (look_to_write == "") {
+    if (is_card_data_updated()) {
+      Serial.println("hit");
+      lcd.clear(); 
+    }
+    if (card_uid[current_card_index] == "") {
+      lcd.setCursor(0, 0);
+      lcd.print("Card ");
+      lcd.print(current_card_index + 1);
+      lcd.print(" empty.");
+    }
+    else {
+      lcd.setCursor(0, 0);
+      lcd.print(card_uid[current_card_index]);
+  
+      lcd.setCursor(0, 1);
+      lcd.print(card_data[current_card_index].substring(0, 20)); 
+    }
   }
   
   if ( ! mfrc522.PICC_IsNewCardPresent())
     return;
-
+  
   if ( ! mfrc522.PICC_ReadCardSerial())
     return;
 
@@ -248,13 +215,28 @@ void loop() {
     store_card(card_uid, card_data);
   }
   
-  
-//  read_from_card();
-//  Serial.println();
-//  write_to_card();
-//  Serial.println();
-//  read_from_card();
-//  Serial.println();
+  if (look_to_write == card_uid) {
+    bool write_status = write_to_card();
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    if (!write_status) {
+      lcd.print("Write failed");
+    }
+    else {
+      lcd.print("Write succeeded");
+    }
+
+    byte card_data_buffer[18];
+    byte card_data_size = 18;
+    read_from_card(card_data_buffer, card_data_size);
+    String updated_card_data = card_buffer_to_string(card_data_buffer, card_data_size);
+    Serial.print("updated data: ");
+    Serial.println(updated_card_data);
+    update_card_data(card_uid, updated_card_data);
+
+    look_to_write = "";
+    delay(1500);
+  }
   
   mfrc522.PICC_HaltA();
   mfrc522.PCD_StopCrypto1();
