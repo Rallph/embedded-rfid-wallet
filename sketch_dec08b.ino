@@ -161,8 +161,7 @@ void loop() {
       lcd.print(current_card_index + 1);
       look_to_write = card_uid[current_card_index];
     }
-    delay(1500);
-    lcd.clear();
+    delay(1000);
   }
 
   if (look_to_write == "") {
