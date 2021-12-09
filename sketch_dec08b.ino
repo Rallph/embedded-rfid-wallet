@@ -70,6 +70,14 @@ bool store_card(String uid, String data) {
     if (card_uid[i] == "") {
       card_uid[i] = uid;
       card_data[i] = data;
+
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Card ");
+      lcd.print(i + 1);
+      lcd.print(" added.");
+      delay(1000);
+      
       return true;
     }
   }
@@ -181,6 +189,17 @@ void loop() {
   
       lcd.setCursor(0, 1);
       lcd.print(card_data[current_card_index].substring(0, 20)); 
+
+      if (current_card_index == 10) {
+        lcd.setCursor(13, 0);
+        lcd.print("C");
+        lcd.print(current_card_index);
+      }
+      else {
+        lcd.setCursor(14, 0);
+        lcd.print("C");
+        lcd.print(current_card_index);
+      }
     }
   }
   
