@@ -134,7 +134,7 @@ void loop() {
     }
     lcd.clear();
     Serial.println(current_card_index);
-    delay(750);
+    delay(500);
     button = digitalRead(A5);
     if (button == HIGH && card_uid[current_card_index - 1] != "") {
       card_uid[current_card_index-1] = "";
