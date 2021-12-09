@@ -80,6 +80,7 @@ bool store_card(String uid, String data) {
       card_uid[i] = uid;
       card_data[i] = data;
 
+      store_eeprom(i, 1);
       digitalWrite(A0, LOW);
       digitalWrite(A1, HIGH);
       digitalWrite(A2, LOW);
@@ -105,6 +106,7 @@ bool update_card_data(String uid, String data) {
   for (int i = 0; i < 10; i++) {
     if (card_uid[i] == uid) {
       card_data[i] = data;
+      store_eeprom(i, 0);
       return true; 
     }
   }
@@ -203,6 +205,7 @@ void loop() {
     if (button == HIGH && card_uid[current_card_index - 1] != "") {
       card_uid[current_card_index-1] = "";
       card_data[current_card_index-1] = "";
+      store_eeprom(current_card_index - 1, -1);
       current_card_index--;
       lcd.clear();
       lcd.setCursor(0, 0);
@@ -280,6 +283,8 @@ void loop() {
 //  Serial.println();
   String card_uid = card_buffer_to_string(mfrc522.uid.uidByte, mfrc522.uid.size);
   Serial.println(card_uid);
+  Serial.print("uid size: ");
+  Serial.println(sizeof(card_uid));
 
   MFRC522::StatusCode status = (MFRC522::StatusCode) mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 7, &key, &(mfrc522.uid));
   if (status != MFRC522::STATUS_OK) {
