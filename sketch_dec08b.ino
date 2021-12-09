@@ -71,12 +71,20 @@ bool store_card(String uid, String data) {
       card_uid[i] = uid;
       card_data[i] = data;
 
+      digitalWrite(A0, LOW);
+      digitalWrite(A1, HIGH);
+      digitalWrite(A2, LOW);
+
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("Card ");
       lcd.print(i + 1);
       lcd.print(" added.");
       delay(1000);
+
+      digitalWrite(A0, LOW);
+      digitalWrite(A1, LOW);
+      digitalWrite(A2, LOW);
       
       return true;
     }
@@ -123,6 +131,14 @@ void setup() {
   pinMode(A5, INPUT);
   pinMode(A4, INPUT);
 
+  pinMode(A0, OUTPUT);
+  pinMode(A1, OUTPUT);
+  pinMode(A2, OUTPUT);
+
+  digitalWrite(A0, LOW);
+  digitalWrite(A1, LOW);
+  digitalWrite(A2, LOW);
+
   lcd.begin(16, 2);
   
   SPI.begin();
@@ -153,7 +169,13 @@ void loop() {
       lcd.print("Card ");
       lcd.print(current_card_index + 1);
       lcd.print(" deleted.");
+      digitalWrite(A0, HIGH);
+      digitalWrite(A1, LOW);
+      digitalWrite(A2, LOW);
       delay(1500);
+      digitalWrite(A0, LOW);
+      digitalWrite(A1, LOW);
+      digitalWrite(A2, LOW);
     }
   }
 
@@ -161,6 +183,10 @@ void loop() {
   if (write_button == HIGH && look_to_write == "") {
     Serial.println("write hit");
     if (card_uid[current_card_index] != "") {
+      digitalWrite(A0, HIGH);
+      digitalWrite(A1, HIGH);
+      digitalWrite(A2, HIGH);
+      
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("Waiting to write");
@@ -238,9 +264,15 @@ void loop() {
     lcd.clear();
     lcd.setCursor(0, 0);
     if (!write_status) {
+      digitalWrite(A0, HIGH);
+      digitalWrite(A1, LOW);
+      digitalWrite(A2, LOW);
       lcd.print("Write failed");
     }
     else {
+      digitalWrite(A0, LOW);
+      digitalWrite(A1, HIGH);
+      digitalWrite(A2, LOW);
       lcd.print("Write succeeded");
     }
 
@@ -254,6 +286,9 @@ void loop() {
 
     look_to_write = "";
     delay(1500);
+    digitalWrite(A0, LOW);
+    digitalWrite(A1, LOW);
+    digitalWrite(A2, LOW);
   }
   
   mfrc522.PICC_HaltA();
