@@ -255,7 +255,7 @@ void loop() {
   Serial.println(card_data);
   Serial.println();
 
-  if (!is_card_stored(card_uid)) {
+  if (!is_card_stored(card_uid) && look_to_write == "") {
     store_card(card_uid, card_data);
   }
   
