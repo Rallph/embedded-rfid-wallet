@@ -13,6 +13,10 @@ struct Card {
   String uid;
   String data;
 };
+
+
+int cards_in_eeprom = 0;
+
 String card_uid[10] = {""};
 
 String last_card_data[10] = {""};
@@ -152,6 +156,22 @@ void setup() {
   for (byte i = 0; i < 6; i++) {
     key.keyByte[i] = 0xFF;
   }
+
+  EEPROM.get(0, cards_in_eeprom);
+  Card saved_card;
+  for (int i = 0; i < cards_in_eeprom; i++) {
+    EEPROM.get(sizeof(int) + (i * sizeof(Card)), saved_card);
+    card_uid[i] = saved_card.uid;
+    card_data[i] = saved_card.data;
+  }
+
+  Serial.println("EEPROM contents");
+  for (int i = 0; i < 1024; i++) {
+    Serial.println(EEPROM[i]);
+  }
+
+  Serial.print("UID size + data size = ");
+  Serial.println(mfrc522.uid.size + 18);
 }
 
 void loop() {
