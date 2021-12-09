@@ -134,6 +134,21 @@ bool is_card_data_updated() {
   return false;
 }
 
+
+void store_eeprom(int card_index, int change) {
+  Card to_save;
+  to_save.uid = card_uid[card_index];
+  to_save.data = card_data[card_index];
+  EEPROM.put(sizeof(int) + (card_index * sizeof(Card)),to_save);
+  Serial.print("Card ");
+  Serial.print(card_index + 1);
+  Serial.println(" saved to EEPROM");
+
+  cards_in_eeprom += change;
+  EEPROM.put(0, cards_in_eeprom);
+  
+}
+
 void setup() {
   Serial.begin(9600);
 
