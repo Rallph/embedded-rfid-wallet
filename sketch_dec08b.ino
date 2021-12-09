@@ -111,6 +111,7 @@ void setup() {
   Serial.begin(9600);
 
   pinMode(A5, INPUT);
+  pinMode(A4, INPUT);
 
   lcd.begin(16, 2);
   
@@ -131,32 +132,90 @@ void loop() {
     }
     lcd.clear();
     Serial.println(current_card_index);
-    delay(500);
-  }
-  
-  if (card_uid[0] == "") {
-    lcd.setCursor(0, 0);
-    lcd.print("0 cards stored.");
-  }
-  else {
-    if (is_card_data_updated()) {
-      Serial.println("hit");
-      lcd.clear(); 
-    }
-    if (card_uid[current_card_index] == "") {
+    delay(1000);
+    button = digitalRead(A5);
+    if (button == HIGH) {
+      card_uid[current_card_index-1] = "";
+      card_data[current_card_index-1] = "";
+      current_card_index--;
+      lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("Card ");
       lcd.print(current_card_index + 1);
-      lcd.print(" empty.");
+      lcd.print(" deleted.");
+      delay(1500);
     }
-    else {
-      lcd.setCursor(0, 0);
-      lcd.print(card_uid[current_card_index]);
+  }
 
+  int write_button = digitalRead(A4);
+  if (write_button == HIGH) {
+    Serial.println("write hit");
+    if (card_uid[current_card_index] != "") {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Waiting to write");
       lcd.setCursor(0, 1);
-      lcd.print(card_data[current_card_index].substring(0, 20)); 
+      lcd.print("to card ");
+      lcd.print(current_card_index + 1);
+      bool card_found = false;
+      while (!card_found) {
+        if ( ! mfrc522.PICC_IsNewCardPresent())
+          continue;
+
+        if ( ! mfrc522.PICC_ReadCardSerial())
+          continue;
+
+        MFRC522::StatusCode status_k = (MFRC522::StatusCode) mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 7, &key, &(mfrc522.uid));
+        if (status_k != MFRC522::STATUS_OK) {
+          continue;
+        }
+        
+        Serial.println("card found 1");
+        String current_card_uid = card_buffer_to_string(mfrc522.uid.uidByte, mfrc522.uid.size);
+        if (current_card_uid == card_uid[current_card_index]) {
+          Serial.println("card found 2");
+          card_found = true;
+          bool status = write_to_card();
+          if (!status) {
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print("Write failed");
+            break;
+          }
+          byte card_data_buffer[18];
+          byte card_data_size = 18;
+          read_from_card(card_data_buffer, card_data_size);
+          String updated_card_data = card_buffer_to_string(card_data_buffer, card_data_size);
+          Serial.print("updated data: ");
+          Serial.println(updated_card_data);
+          update_card_data(current_card_uid, updated_card_data);
+
+          lcd.clear();
+          lcd.setCursor(0, 0);
+          lcd.print("Write succeeded");
+        }
+      }
     }
-//    delay(500);
+    delay(1500);
+    lcd.clear();
+  }
+  
+  if (is_card_data_updated()) {
+    Serial.println("hit");
+    lcd.clear(); 
+  }
+  if (card_uid[current_card_index] == "") {
+    lcd.setCursor(0, 0);
+    lcd.print("Card ");
+    lcd.print(current_card_index + 1);
+    lcd.print(" empty.");
+  }
+  else {
+    lcd.setCursor(0, 0);
+    lcd.print(card_uid[current_card_index]);
+
+    lcd.setCursor(0, 1);
+    lcd.print(card_data[current_card_index].substring(0, 20)); 
   }
   
   if ( ! mfrc522.PICC_IsNewCardPresent())
