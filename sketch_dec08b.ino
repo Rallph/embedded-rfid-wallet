@@ -123,13 +123,16 @@ void setup() {
 }
 
 void loop() {
-//  int button = digitalRead(A5);
-//  if (button == HIGH) {
-//    Serial.print("high");
-//  }
-//  else {
-//    Serial.print("low");
-//  }
+  int button = digitalRead(A5);
+  if (button == HIGH) {
+    current_card_index++;
+    if (current_card_index >= 10) {
+      current_card_index = 0;
+    }
+    lcd.clear();
+    Serial.println(current_card_index);
+    delay(500);
+  }
   
   if (card_uid[0] == "") {
     lcd.setCursor(0, 0);
@@ -140,11 +143,20 @@ void loop() {
       Serial.println("hit");
       lcd.clear(); 
     }
-    lcd.setCursor(0, 0);
-    lcd.print(card_uid[current_card_index]);
+    if (card_uid[current_card_index] == "") {
+      lcd.setCursor(0, 0);
+      lcd.print("Card ");
+      lcd.print(current_card_index + 1);
+      lcd.print(" empty.");
+    }
+    else {
+      lcd.setCursor(0, 0);
+      lcd.print(card_uid[current_card_index]);
 
-    lcd.setCursor(0, 1);
-    lcd.print(card_data[current_card_index].substring(0, 20));
+      lcd.setCursor(0, 1);
+      lcd.print(card_data[current_card_index].substring(0, 20)); 
+    }
+//    delay(500);
   }
   
   if ( ! mfrc522.PICC_IsNewCardPresent())
@@ -188,5 +200,5 @@ void loop() {
   mfrc522.PICC_HaltA();
   mfrc522.PCD_StopCrypto1();
 
-  delay(2000);
+//  delay(2000);
 }
