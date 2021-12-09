@@ -1,6 +1,7 @@
 #include <SPI.h>
 #include <MFRC522.h>
 #include <LiquidCrystal.h>
+#include <EEPROM.h>
 
 LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
 
@@ -8,6 +9,10 @@ MFRC522 mfrc522(10, 9);
 
 MFRC522::MIFARE_Key key;
 
+struct Card {
+  String uid;
+  String data;
+};
 String card_uid[10] = {""};
 
 String last_card_data[10] = {""};
