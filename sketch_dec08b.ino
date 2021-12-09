@@ -193,12 +193,12 @@ void loop() {
       if (current_card_index == 10) {
         lcd.setCursor(13, 0);
         lcd.print("C");
-        lcd.print(current_card_index);
+        lcd.print(current_card_index + 1);
       }
       else {
         lcd.setCursor(14, 0);
         lcd.print("C");
-        lcd.print(current_card_index);
+        lcd.print(current_card_index + 1);
       }
     }
   }
