@@ -134,11 +134,11 @@ void setup() {
   pinMode(A0, OUTPUT);
   pinMode(A1, OUTPUT);
   pinMode(A2, OUTPUT);
-
+  
   digitalWrite(A0, LOW);
   digitalWrite(A1, LOW);
   digitalWrite(A2, LOW);
-
+  
   lcd.begin(16, 2);
   
   SPI.begin();
@@ -289,6 +289,7 @@ void loop() {
     digitalWrite(A0, LOW);
     digitalWrite(A1, LOW);
     digitalWrite(A2, LOW);
+    lcd.clear();
   }
   
   mfrc522.PICC_HaltA();
